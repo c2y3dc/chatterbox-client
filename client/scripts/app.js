@@ -2,6 +2,8 @@
 var app = {};
 var chats = {};
 var firstTime = true;
+var chatRooms = [];
+var choosenRoom = "lobby";
 app.server = 'https://api.parse.com/1/classes/chatterbox';
 
 // Initialize Chatterbox
@@ -45,7 +47,7 @@ app.fetch = function(){
   success: function (data) {
     console.log('chatterbox: Message received.');
     app.messageHandler(data);
-    // console.log(data.results)
+    //console.log(data.results)
   },
   error: function (data) {
     // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -57,21 +59,44 @@ app.fetch = function(){
 // Convert Data Object to Message DOM nodes
 app.messageHandler = function(data){
   var messages = data.results;
-  var lastId = 0;
   for(var i=messages.length/5; i > 0; i--){
-    if(messages[i].text !== undefined && messages[i].text.slice(0,8) !== '<script>' && messages[i].text.slice(0,5) !== '<img' && !chats.hasOwnProperty(messages[i].objectId)) {
+    if(!_.contains(chatRooms, messages[i].roomname)){
+      chatRooms.push(messages[i].roomname);
+    }
+    if(app.messageFilter(messages[i])) {
+      if(app.chatRoomFilter(messages[i])){$('#chatroom').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + ']  ' + messages[i].username + ": " + messages[i].text + '</div>')}
     // console.log(messages[i].username + ": " + messages[i].text)
-      $('#chats').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + '] ' + messages[i].username + ": " + messages[i].text + '</div>');
+      $('#chats').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + ']  ' + messages[i].username + ": " + messages[i].text + '</div>');
       chats[messages[i].objectId] = messages[i].text;
-      if (!firstTime){
-        app.clearMessages();
+      $('#roomlist').children().remove();
+      for(var i = 0; i < chatRooms.length; i++){
+        var newRoom = '<li>'+ chatRooms[i] + '</li>'
+        $('#roomlist').append(newRoom);
       }
+      // if (!firstTime){
+      //   app.clearMessages();
+      // }
     }
   }
 }
 
-app.addMessage = function(){
+app.messageFilter = function(message){
+  if (message.text !== undefined
+    && message.text.slice(0,8) !== '<script>'
+    && message.text.slice(0,5) !== '<img'
+    && !chats.hasOwnProperty(message.objectId)
+    && message.username !== 'BRETTSPENCER'
+    && message.username !== 'Chuck Norris'
+  ) {
+    return true;
+  }
+  return false;
 
+}
+
+app.chatRoomFilter = function(message){
+  if(message.roomname === choosenRoom){return true;}
+  return false;
 }
 
 // Clear Chat Box
@@ -97,7 +122,7 @@ $(document).ready(function(){
     var message = {
       'username': window.location.search.slice(10),
       'text': $('.input').val(),
-      'roomname': '4chan'
+      'roomname': 'lobby'
    };
     app.send(message);
     $('.input').val("");

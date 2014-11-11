@@ -60,12 +60,43 @@ form input[type=text] {
     padding: 5px;
 }
 
-.chats {
-    height: 800px;
+#chats {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    height: 750px;
     width: 500px;
     padding: 5px;
     margin-bottom: 5px;
-    background-color: #eee;
+    background-color: black;
+    color: white;
+    overflow: scroll;
+}
+
+#chatroom {
+    position: absolute;
+    top: 40%;
+    left: 15%;
+    height: 750px;
+    width: 500px;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: black;
+    color: white;
+}
+
+#roomlist
+{
+    position: fixed;
+    padding-right: 20px;
+    top: 10;
+    left: 50%;
+    overflow: scroll;
+    height: 100px;
+}
+
+li {
+    position: relative;
 }
 
 .chats .username {
@@ -84,4 +115,9 @@ form input[type=text] {
 
 .spinner img {
     padding: 10px;
+}
+
+.username {
+    position: fixed;
+    top: 40;
 }
