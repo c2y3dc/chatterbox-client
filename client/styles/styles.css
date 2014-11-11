@@ -60,7 +60,7 @@ form input[type=text] {
     padding: 5px;
 }
 
-.chat {
+.chats {
     height: 800px;
     width: 500px;
     padding: 5px;
@@ -68,11 +68,11 @@ form input[type=text] {
     background-color: #eee;
 }
 
-.chat .username {
+.chats .username {
     font-weight: 800;
 }
 
-.chat:hover {
+.chats:hover {
     background-color: #ddd;
 }
 

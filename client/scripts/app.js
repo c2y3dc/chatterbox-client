@@ -1,15 +1,21 @@
 // YOUR CODE HERE:
 var app = {};
+var chats = {};
 app.server = 'https://api.parse.com/1/classes/chatterbox';
-app.init = function(){};
+
+// Initialize Chatterbox
+app.init = function(){
+  app.updateMessages();
+};
 
 // message format:
-// var message = {
-//   'username': 'shawndrost',
-//   'text': 'trololo',
-//   'roomname': '4chan'
-// };
+var message = {
+  'username': 'HAL9000',
+  'text': '',
+  'roomname': '4chan'
+};
 
+// Send Messages
 app.send = function(message){
   $.ajax({
   // always use this url
@@ -18,7 +24,7 @@ app.send = function(message){
   data: JSON.stringify(message),
   contentType: 'application/json',
   success: function (data) {
-    console.log('chatterbox: Message sent');app.messageHandler(data);
+    console.log('chatterbox: Message sent');
   },
   error: function (data) {
     // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -27,16 +33,18 @@ app.send = function(message){
 });
 };
 
+// Fetch Messages
 app.fetch = function(){
   $.ajax({
   // always use this url
-  url: app.server,
+  url: 'https://api.parse.com/1/classes/chatterbox?order=-createdAt',
   type: 'GET',
   // data: JSON.stringify(message),
   contentType: 'application/json',
   success: function (data) {
-    console.log('chatterbox: Message received. contents:', data);
+    console.log('chatterbox: Message received.');
     app.messageHandler(data);
+    console.log(data.results)
   },
   error: function (data) {
     // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -45,14 +53,37 @@ app.fetch = function(){
 });
 }
 
+// Convert Data Object to Message DOM nodes
 app.messageHandler = function(data){
   var messages = data.results;
-  for(var i=0; i < messages.length; i++){
-    if(messages[i].text !== undefined && messages[i].text.slice(0,8) !== '<script>'){
+  var lastId = 0;
+  for(var i=0; i < messages.length/5; i++){
+    if(messages[i].text !== undefined && messages[i].text.slice(0,8) !== '<script>' && !chats.hasOwnProperty(messages[i].objectId)) {
     // console.log(messages[i].username + ": " + messages[i].text)
-      $('.chat').append('<div>' + messages[i].username + ": " + messages[i].text + '</div>');
+      $('#chats').append('<div>' + messages[i].username + ": " + messages[i].text + '</div>');
+      chats[messages[i].objectId] = messages[i].text;
     }
   }
 }
 
-app.fetch();
+app.addMessage = function(){
+
+}
+
+// Clear Chat Box
+app.clearMessages = function(){
+  $('#chats').children().remove();
+}
+
+// Update Chats
+app.updateMessages = function(){
+  app.fetch();
+  setInterval(function(){
+  // app.clearMessages();
+  app.fetch();
+}, 3000);
+};
+
+// Initialize!
+app.init();
+
