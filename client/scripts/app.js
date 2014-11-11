@@ -1,6 +1,7 @@
 // YOUR CODE HERE:
 var app = {};
 var chats = {};
+var firstTime = true;
 app.server = 'https://api.parse.com/1/classes/chatterbox';
 
 // Initialize Chatterbox
@@ -9,11 +10,11 @@ app.init = function(){
 };
 
 // message format:
-var message = {
-  'username': 'HAL9000',
-  'text': '',
+  var message = {
+  'username': 'TARS',
+  'text': "Rage, rage against the dying of the light.",
   'roomname': '4chan'
-};
+  };
 
 // Send Messages
 app.send = function(message){
@@ -44,7 +45,7 @@ app.fetch = function(){
   success: function (data) {
     console.log('chatterbox: Message received.');
     app.messageHandler(data);
-    console.log(data.results)
+    // console.log(data.results)
   },
   error: function (data) {
     // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -57,11 +58,14 @@ app.fetch = function(){
 app.messageHandler = function(data){
   var messages = data.results;
   var lastId = 0;
-  for(var i=0; i < messages.length/5; i++){
+  for(var i=messages.length/5; i > 0; i--){
     if(messages[i].text !== undefined && messages[i].text.slice(0,8) !== '<script>' && !chats.hasOwnProperty(messages[i].objectId)) {
     // console.log(messages[i].username + ": " + messages[i].text)
-      $('#chats').append('<div>' + messages[i].username + ": " + messages[i].text + '</div>');
+      $('#chats').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + '] ' + messages[i].username + ": " + messages[i].text + '</div>');
       chats[messages[i].objectId] = messages[i].text;
+      if (!firstTime){
+        app.clearMessages();
+      }
     }
   }
 }
@@ -72,16 +76,16 @@ app.addMessage = function(){
 
 // Clear Chat Box
 app.clearMessages = function(){
-  $('#chats').children().remove();
+  $('#chats :last-child').remove();
 }
 
 // Update Chats
 app.updateMessages = function(){
   app.fetch();
   setInterval(function(){
-  // app.clearMessages();
-  app.fetch();
-}, 3000);
+    firstTime = false;
+    app.fetch();
+}, 700);
 };
 
 // Initialize!
