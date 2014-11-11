@@ -59,7 +59,7 @@ app.messageHandler = function(data){
   var messages = data.results;
   var lastId = 0;
   for(var i=messages.length/5; i > 0; i--){
-    if(messages[i].text !== undefined && messages[i].text.slice(0,8) !== '<script>' && !chats.hasOwnProperty(messages[i].objectId)) {
+    if(messages[i].text !== undefined && messages[i].text.slice(0,8) !== '<script>' && messages[i].text.slice(0,5) !== '<img' && !chats.hasOwnProperty(messages[i].objectId)) {
     // console.log(messages[i].username + ": " + messages[i].text)
       $('#chats').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + '] ' + messages[i].username + ": " + messages[i].text + '</div>');
       chats[messages[i].objectId] = messages[i].text;
@@ -90,4 +90,18 @@ app.updateMessages = function(){
 
 // Initialize!
 app.init();
+
+$(document).ready(function(){
+  $(".username").text('username: ' + window.location.search.slice(10));
+  $(".button").click(function() {
+    var message = {
+      'username': window.location.search.slice(10),
+      'text': $('.input').val(),
+      'roomname': '4chan'
+   };
+    app.send(message);
+    $('.input').val("");
+  });
+});
+
 
