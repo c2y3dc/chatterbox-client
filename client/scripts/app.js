@@ -3,20 +3,13 @@ var app = {};
 var chats = {};
 var firstTime = true;
 var chatRooms = [];
-var choosenRoom = "lobby";
+var chosenRoom = "lobby";
 app.server = 'https://api.parse.com/1/classes/chatterbox';
 
 // Initialize Chatterbox
 app.init = function(){
   app.updateMessages();
 };
-
-// message format:
-  var message = {
-  'username': 'TARS',
-  'text': "Rage, rage against the dying of the light.",
-  'roomname': '4chan'
-  };
 
 // Send Messages
 app.send = function(message){
@@ -70,7 +63,7 @@ app.messageHandler = function(data){
       chats[messages[i].objectId] = messages[i].text;
       $('#roomlist').children().remove();
       for(var i = 0; i < chatRooms.length; i++){
-        var newRoom = '<li>'+ chatRooms[i] + '</li>'
+        var newRoom = '<option value='+ chatRooms[i] + '>' + chatRooms[i] + '</option>';
         $('#roomlist').append(newRoom);
       }
       // if (!firstTime){
@@ -95,7 +88,7 @@ app.messageFilter = function(message){
 }
 
 app.chatRoomFilter = function(message){
-  if(message.roomname === choosenRoom){return true;}
+  if(message.roomname === chosenRoom){return true;}
   return false;
 }
 
@@ -122,10 +115,15 @@ $(document).ready(function(){
     var message = {
       'username': window.location.search.slice(10),
       'text': $('.input').val(),
-      'roomname': 'lobby'
+      'roomname': chosenRoom
    };
-    app.send(message);
-    $('.input').val("");
+  $("#roomlist").change(function(){
+    console.log('Heloo!');
+    $("chatroom").remove();
+    chosenRoom = $( "#roomlist").val();
+  });
+  app.send(message);
+  $('.input').val("");
   });
 });
 
