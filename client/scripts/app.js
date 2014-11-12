@@ -52,27 +52,40 @@ app.fetch = function(){
 // Convert Data Object to Message DOM nodes
 app.messageHandler = function(data){
   var messages = data.results;
+  $('.user').click(function(){
+    console.log(this);
+    $('#friends').append($(this).text());
+  });
   for(var i=messages.length/5; i > 0; i--){
     if(!_.contains(chatRooms, messages[i].roomname)){
+      if(messages[i].roomname === undefined || messages[i].roomname.slice(0,3) !== 'var'){
       chatRooms.push(messages[i].roomname);
+      }
     }
     if(app.messageFilter(messages[i])) {
-      if(app.chatRoomFilter(messages[i])){$('#chatroom').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + ']  ' + messages[i].username + ": " + messages[i].text + '</div>')}
-    // console.log(messages[i].username + ": " + messages[i].text)
-      $('#chats').prepend('<div>' + '[' + moment(messages[i].createdAt).format("MMMM Do, h:mm:ss a") + ']  ' + messages[i].username + ": " + messages[i].text + '</div>');
-      chats[messages[i].objectId] = messages[i].text;
+      if(app.chatRoomFilter(messages[i])){
+        $('#chatroom').prepend(app.renderMessage(messages[i]));
+      }
+      $('#chats').prepend(app.renderMessage(messages[i]));
+      chats[messages[i].objectId] = messages[i].text; //update cache
       $('#roomlist').children().remove();
       for(var i = 0; i < chatRooms.length; i++){
         var newRoom = '<option value='+ chatRooms[i] + '>' + chatRooms[i] + '</option>';
         $('#roomlist').append(newRoom);
       }
-      // if (!firstTime){
-      //   app.clearMessages();
-      // }
     }
   }
 }
 
+app.renderMessage = function(message){
+  var $user = $('<div>', {class: 'user'}).text(message.username + ": ");
+  var $text = $('<div>', {class: 'text'}).text(message.text);
+  var $date = $('<div>', {class: 'date'}).text('['+moment(message.createdAt).format("MMMM Do, h:mm:ss a")+'] ')
+  var $message = $('<div>', {class: 'chat', 'data-id':message.objectId}).append($date, $user, $text);
+  return $message;
+}
+
+// filter haxors
 app.messageFilter = function(message){
   if (message.text !== undefined
     && message.text.slice(0,8) !== '<script>'
@@ -87,6 +100,7 @@ app.messageFilter = function(message){
 
 }
 
+// only display selected chatroom messages
 app.chatRoomFilter = function(message){
   if(message.roomname === chosenRoom){return true;}
   return false;
@@ -109,6 +123,8 @@ app.updateMessages = function(){
 // Initialize!
 app.init();
 
+
+// JQuery Magic!
 $(document).ready(function(){
   $(".username").text('username: ' + window.location.search.slice(10));
   $(".button").click(function() {
@@ -117,13 +133,12 @@ $(document).ready(function(){
       'text': $('.input').val(),
       'roomname': chosenRoom
    };
-  $("#roomlist").change(function(){
-    console.log('Heloo!');
-    $("chatroom").remove();
-    chosenRoom = $( "#roomlist").val();
-  });
   app.send(message);
   $('.input').val("");
+  });
+  $("#roomlist").change(function(){
+    $("#chatroom").children().remove();
+        chosenRoom = $( "#roomlist").val();
   });
 });
 

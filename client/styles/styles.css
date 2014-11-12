@@ -118,3 +118,16 @@ form input[type=text] {
     position: absolute;
     top: 40;
 }
+
+#friends{
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    height: 750px;
+    width: 180px;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: yellow;
+    color: blue;
+    overflow: scroll;
+}
